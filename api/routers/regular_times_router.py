@@ -1,6 +1,7 @@
 from fastapi import Depends, APIRouter
 from sqlalchemy.orm import Session
 from api.schemas.regular_times_schema import RegularTimesSchemaGet, RegularTimesSchemaPost, RegularTimesSchemaUpdate
+from autorization.auth import get_current_user
 from database.crud.regular_times_crud import get_all_regular_times, get_regular_time_by_id, \
     create_regular_time, update_regular_time, delete_regular_time
 from database.db import get_db
@@ -10,7 +11,8 @@ regular_time_router = APIRouter(prefix='/regular_time', tags=['Временны�
 
 
 @regular_time_router.get('/all_regular_times')
-def all_regular_times(db: Session = Depends(get_db)):
+def all_regular_times(db: Session = Depends(get_db),
+                      user: dict = Depends(get_current_user)):
     try:
         orm_models = get_all_regular_times(db)
         result = [RegularTimesSchemaGet.model_validate(m) for m in orm_models]
@@ -20,7 +22,9 @@ def all_regular_times(db: Session = Depends(get_db)):
 
 
 @regular_time_router.get('/get_regular_time/{regular_time_id}')
-def regular_time_by_id(regular_time_id: int, db: Session = Depends(get_db)):
+def regular_time_by_id(regular_time_id: int,
+                       db: Session = Depends(get_db),
+                       user: dict = Depends(get_current_user)):
     try:
         orm_model = get_regular_time_by_id(db, regular_time_id)
         result = RegularTimesSchemaGet.model_validate(orm_model)
@@ -30,7 +34,9 @@ def regular_time_by_id(regular_time_id: int, db: Session = Depends(get_db)):
 
 
 @regular_time_router.post('/create_regular_time')
-def add_regular_time(regular_time: RegularTimesSchemaPost, db: Session = Depends(get_db)):
+def add_regular_time(regular_time: RegularTimesSchemaPost,
+                     db: Session = Depends(get_db),
+                     user: dict = Depends(get_current_user)):
     try:
         db_regular_time = RegularTimes(period=regular_time.period,
                                  days=regular_time.days,
@@ -42,7 +48,10 @@ def add_regular_time(regular_time: RegularTimesSchemaPost, db: Session = Depends
 
 
 @regular_time_router.patch('/update_regular_time/{regular_time_id}')
-def update_regular_time_by_id(regular_time_id: int, regular_time: RegularTimesSchemaUpdate, db: Session = Depends(get_db)):
+def update_regular_time_by_id(regular_time_id: int,
+                              regular_time: RegularTimesSchemaUpdate,
+                              db: Session = Depends(get_db),
+                              user: dict = Depends(get_current_user)):
     try:
         data_to_update = regular_time.model_dump(exclude_unset=True)
         return update_regular_time(db, regular_time_id, changes=data_to_update)
@@ -51,7 +60,9 @@ def update_regular_time_by_id(regular_time_id: int, regular_time: RegularTimesSc
 
 
 @regular_time_router.delete('/delete_regular_time/{regular_time_id}')
-def delete_regular_time_by_id(regular_time_id: int, db: Session = Depends(get_db)):
+def delete_regular_time_by_id(regular_time_id: int,
+                              db: Session = Depends(get_db),
+                              user: dict = Depends(get_current_user)):
     try:
         return delete_regular_time(db, regular_time_id)
     except Exception as e:
