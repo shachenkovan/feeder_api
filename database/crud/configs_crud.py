@@ -1,31 +1,44 @@
+from fastapi import HTTPException
 from sqlalchemy.orm import Session
 from database.models import Configs
 from sqlalchemy.exc import IntegrityError, DataError
 
 
-def set_setting_value(db: Session, name: str, value: str, is_force: bool):
+def set_setting_value(db: Session, name: str, value: dict, is_force: bool):
     try:
         config = db.query(Configs).filter(Configs.name == name).first()
         if config:
-            config.value = value
-        elif is_force:
-            config = Configs(name=name, value=value)
-            db.add(config)
+            current_values = config.value or []
+            updated_values = list(set(current_values) | set(value))
+            config.value = updated_values
         else:
-            return {'Error': f'Конфигурация с названием {name} не существует.'}
+            if is_force:
+                config = Configs(name=name, value=value)
+                db.add(config)
+            else:
+                raise HTTPException(status_code=422, detail=f'Конфигурация с названием {name} не существует.')
         db.commit()
         if config:
             db.refresh(config)
         return config
     except IntegrityError:
         db.rollback()
-        return {'Error': 'Не удалось редактировать, значения должны быть уникальными и не пустыми.'}
+        raise HTTPException(
+            status_code=400,
+            detail="Не удалось создать, значения в полях должны быть уникальными и не пустыми."
+        )
     except DataError:
         db.rollback()
-        return {'Error': 'Не удалось редактировать, неверный тип данных или размер.'}
+        raise HTTPException(
+            status_code=422,
+            detail="Не удалось создать, неверный тип данных или размер."
+        )
     except Exception as e:
         db.rollback()
-        return {'Error': f'Непредвиденная ошибка: {str(e)}'}
+        raise HTTPException(
+            status_code=500,
+            detail=f"Непредвиденная ошибка: {str(e)}"
+        )
 
 
 def get_setting_by_name(db: Session, config_name: str):
@@ -33,10 +46,13 @@ def get_setting_by_name(db: Session, config_name: str):
         if config := db.query(Configs).filter(Configs.name == config_name).first():
             return config
         else:
-            return {'msg': 'Запись не найдена.'}
+            raise HTTPException(status_code=404, detail='Запись не найдена.')
     except Exception as e:
-        return {'Error': f'Непредвиденная ошибка: {str(e)}'}
-
+        db.rollback()
+        raise HTTPException(
+            status_code=500,
+            detail=f"Непредвиденная ошибка: {str(e)}"
+        )
 
 def get_all_settings(db: Session):
     try:
@@ -48,4 +64,8 @@ def get_all_settings(db: Session):
                                 'value': config.value})
         return configs_list
     except Exception as e:
-        return {'Error': f'Непредвиденная ошибка: {str(e)}'}
+        db.rollback()
+        raise HTTPException(
+            status_code=500,
+            detail=f"Непредвиденная ошибка: {str(e)}"
+        )
