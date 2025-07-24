@@ -1,13 +1,13 @@
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
-from config import database
+from config import settings
 
 
 Base = declarative_base()
 
 engine = create_engine(
-    f'mysql+pymysql://{database["user"]}:{database["password"]}@{database["host"]}:{database["port"]}/{database["db"]}')
+    f'mysql+pymysql://{settings["database"]["user"]}:{settings["database"]["password"]}@{settings["database"]["host"]}:{settings["database"]["port"]}/{settings["database"]["db"]}')
 session_maker = sessionmaker(bind=engine)
 
 
