@@ -2,6 +2,7 @@ from fastapi import Depends, APIRouter
 from sqlalchemy.orm import Session
 from api.schemas.filial_enterprises_schema import FilialEnterprisesSchemaGet, FilialEnterprisesSchemaPost, \
     FilialEnterprisesSchemaUpdate
+from autorization.auth import get_current_user
 from database.crud.filial_enterprises_crud import get_all_filial_enterprises, get_filial_enterprise_by_id, \
     create_filial_enterprise, update_filial_enterprise, delete_filial_enterprise
 from database.db import get_db
@@ -11,7 +12,8 @@ filial_enterprise_router = APIRouter(prefix='/filial_enterprise', tags=['Фил�
 
 
 @filial_enterprise_router.get('/all_filial_enterprises')
-def all_filial_enterprises(db: Session = Depends(get_db)):
+def all_filial_enterprises(db: Session = Depends(get_db),
+                           user: dict = Depends(get_current_user)):
     try:
         orm_models = get_all_filial_enterprises(db)
         result = [FilialEnterprisesSchemaGet.model_validate(m) for m in orm_models]
@@ -21,7 +23,9 @@ def all_filial_enterprises(db: Session = Depends(get_db)):
 
 
 @filial_enterprise_router.get('/get_filial_enterprise/{filial_enterprise_id}')
-def filial_enterprise_by_id(filial_enterprise_id: int, db: Session = Depends(get_db)):
+def filial_enterprise_by_id(filial_enterprise_id: int,
+                            db: Session = Depends(get_db),
+                            user: dict = Depends(get_current_user)):
     try:
         orm_model = get_filial_enterprise_by_id(db, filial_enterprise_id)
         result = FilialEnterprisesSchemaGet.model_validate(orm_model)
@@ -31,7 +35,9 @@ def filial_enterprise_by_id(filial_enterprise_id: int, db: Session = Depends(get
 
 
 @filial_enterprise_router.post('/create_filial_enterprise')
-def add_filial_enterprise(filial_enterprise: FilialEnterprisesSchemaPost, db: Session = Depends(get_db)):
+def add_filial_enterprise(filial_enterprise: FilialEnterprisesSchemaPost,
+                          db: Session = Depends(get_db),
+                          user: dict = Depends(get_current_user)):
     try:
         db_filial_enterprise = FilialEnterprises(inn=filial_enterprise.inn,
                                     adres=filial_enterprise.adres)
@@ -42,7 +48,10 @@ def add_filial_enterprise(filial_enterprise: FilialEnterprisesSchemaPost, db: Se
 
 
 @filial_enterprise_router.patch('/update_filial_enterprise/{filial_enterprise_id}')
-def update_filial_enterprise_by_id(filial_enterprise_id: int, filial_enterprise: FilialEnterprisesSchemaUpdate, db: Session = Depends(get_db)):
+def update_filial_enterprise_by_id(filial_enterprise_id: int,
+                                   filial_enterprise: FilialEnterprisesSchemaUpdate,
+                                   db: Session = Depends(get_db),
+                                   user: dict = Depends(get_current_user)):
     try:
         data_to_update = filial_enterprise.model_dump(exclude_unset=True)
         return update_filial_enterprise(db, filial_enterprise_id, changes=data_to_update)
@@ -51,7 +60,9 @@ def update_filial_enterprise_by_id(filial_enterprise_id: int, filial_enterprise:
 
 
 @filial_enterprise_router.delete('/delete_filial_enterprise/{filial_enterprise_id}')
-def delete_filial_enterprise_by_id(filial_enterprise_id: int, db: Session = Depends(get_db)):
+def delete_filial_enterprise_by_id(filial_enterprise_id: int,
+                                   db: Session = Depends(get_db),
+                                   user: dict = Depends(get_current_user)):
     try:
         return delete_filial_enterprise(db, filial_enterprise_id)
     except Exception as e:
