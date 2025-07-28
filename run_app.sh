@@ -6,8 +6,9 @@ if [ ! -d "venv" ]; then
   python3 -m venv venv
 fi
 
-if [ -z "$VIRTUAL_ENV" ]; then
-  source venv/bin/activate
-fi
+source venv/bin/activate
+
+pip install --upgrade pip
+pip install -r requirements.txt
 
 uvicorn api.service:app --host 127.0.0.1 --port 8000 --reload
