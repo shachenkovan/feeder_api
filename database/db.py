@@ -6,8 +6,9 @@ from config import settings
 
 Base = declarative_base()
 
+DBConf = settings['database']
 engine = create_engine(
-    f'mysql+pymysql://{settings["database"]["user"]}:{settings["database"]["password"]}@{settings["database"]["host"]}:{settings["database"]["port"]}/{settings["database"]["db"]}')
+    f'mysql+pymysql://{DBConf["user"]}:{DBConf["password"]}@{DBConf["host"]}:{DBConf["port"]}/{DBConf["db"]}')
 session_maker = sessionmaker(bind=engine)
 
 
