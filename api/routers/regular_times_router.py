@@ -1,7 +1,7 @@
 from fastapi import Depends, APIRouter
 from sqlalchemy.orm import Session
 from api.schemas.regular_times_schema import RegularTimesSchemaGet, RegularTimesSchemaPost, RegularTimesSchemaUpdate
-from autorization.auth import get_current_user
+from authorization.auth import get_current_user
 from database.crud.regular_times_crud import get_all_regular_times, get_regular_time_by_id, \
     create_regular_time, update_regular_time, delete_regular_time
 from database.db import get_db

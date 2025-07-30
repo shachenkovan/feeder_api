@@ -1,6 +1,6 @@
 from fastapi import Depends, APIRouter
 from sqlalchemy.orm import Session
-from autorization.auth import get_current_user
+from authorization.auth import get_current_user
 from database.crud.enterprices_crud import get_enterprise_by_inn, get_all_enterprises, create_enterprise, \
     update_enterprise, delete_enterprise
 from api.schemas.enterprices_schema import EnterprisesSchema, EnterprisesSchemaUpdate

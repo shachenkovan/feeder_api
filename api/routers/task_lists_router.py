@@ -2,7 +2,7 @@ from uuid import UUID
 from fastapi import Depends, APIRouter
 from sqlalchemy.orm import Session
 from api.schemas.task_lists_schema import TaskListsSchemaGet, TaskListsSchemaPost, TaskListsSchemaUpdate
-from autorization.auth import get_current_user
+from authorization.auth import get_current_user
 from database.crud.task_lists_crud import get_all_task_lists, get_task_list_by_id, \
     create_task_list, update_task_list, delete_task_list
 from database.db import get_db

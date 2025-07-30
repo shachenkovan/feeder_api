@@ -2,7 +2,7 @@ from uuid import UUID
 from fastapi import Depends, APIRouter
 from sqlalchemy.orm import Session
 from api.schemas.devices_schema import DeviceSchemaGet, DeviceSchemaPost, DeviceSchemaUpdate
-from autorization.auth import get_current_user
+from authorization.auth import get_current_user
 from database.crud.devices_crud import get_all_devices, get_device_by_id, create_device, update_device, delete_device
 from database.db import get_db
 from database.models import Devices
