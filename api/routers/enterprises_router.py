@@ -1,5 +1,6 @@
 from fastapi import Depends, APIRouter
 from sqlalchemy.orm import Session
+from autorization.auth import get_current_user
 from database.crud.enterprices_crud import get_enterprise_by_inn, get_all_enterprises, create_enterprise, \
     update_enterprise, delete_enterprise
 from api.schemas.enterprices_schema import EnterprisesSchema, EnterprisesSchemaUpdate
@@ -10,7 +11,8 @@ enterprise_router = APIRouter(prefix='/enterprise', tags=['Предприяти�
 
 
 @enterprise_router.get('/all_enterprises')
-def all_enterprises(db: Session = Depends(get_db)):
+def all_enterprises(db: Session = Depends(get_db),
+                    user: dict = Depends(get_current_user)):
     try:
         orm_models = get_all_enterprises(db)
         result = [EnterprisesSchema.model_validate(m) for m in orm_models]
@@ -20,7 +22,9 @@ def all_enterprises(db: Session = Depends(get_db)):
 
 
 @enterprise_router.get('/get_enterprise/{enterprise_inn}')
-def enterprise_by_inn(enterprise_inn: str, db: Session = Depends(get_db)):
+def enterprise_by_inn(enterprise_inn: str,
+                      db: Session = Depends(get_db),
+                      user: dict = Depends(get_current_user)):
     try:
         orm_model = get_enterprise_by_inn(db, enterprise_inn)
         result = EnterprisesSchema.model_validate(orm_model)
@@ -30,7 +34,9 @@ def enterprise_by_inn(enterprise_inn: str, db: Session = Depends(get_db)):
 
 
 @enterprise_router.post('/create_enterprise')
-def add_enterprise(enterprise: EnterprisesSchema, db: Session = Depends(get_db)):
+def add_enterprise(enterprise: EnterprisesSchema,
+                   db: Session = Depends(get_db),
+                   user: dict = Depends(get_current_user)):
     try:
         db_enterprise = Enterprises(inn=enterprise.inn,
                                     ogrn=enterprise.ogrn,
@@ -44,7 +50,10 @@ def add_enterprise(enterprise: EnterprisesSchema, db: Session = Depends(get_db))
 
 
 @enterprise_router.patch('/update_enterprise/{enterprise_inn}')
-def update_enterprise_by_inn(enterprise_inn: str, enterprise: EnterprisesSchemaUpdate, db: Session = Depends(get_db)):
+def update_enterprise_by_inn(enterprise_inn: str,
+                             enterprise: EnterprisesSchemaUpdate,
+                             db: Session = Depends(get_db),
+                             user: dict = Depends(get_current_user)):
     try:
         data_to_update = enterprise.model_dump(exclude_unset=True)
         return update_enterprise(db, enterprise_inn, changes=data_to_update)
@@ -53,7 +62,9 @@ def update_enterprise_by_inn(enterprise_inn: str, enterprise: EnterprisesSchemaU
 
 
 @enterprise_router.delete('/delete_enterprise/{enterprise_inn}')
-def delete_enterprise_by_inn(enterprise_inn: str, db: Session = Depends(get_db)):
+def delete_enterprise_by_inn(enterprise_inn: str,
+                             db: Session = Depends(get_db),
+                             user: dict = Depends(get_current_user)):
     try:
         return delete_enterprise(db, enterprise_inn)
     except Exception as e:
