@@ -29,13 +29,32 @@ def get_wp_user_info(token):
         return response.json()
     return None
 
+test_wp_roles_dict = {
+    "admins": ["administrator"],
+    "moders": ["editor"],
+    "users": ["subscriber", "contributor", "author", "translator"]
+}
 
-# def update_roles_in_config(db: Session, wp_roles: list):
-    # set_setting_value(db, "roles", wp_roles, is_force=True)
+def update_roles_in_config(db: Session, wp_roles: dict):
+    admins_roles_in_wp = wp_roles["admins"]
+    admins_roles_list = db.query(Configs).filter(Configs.name.ilike('%administrator%')).first()
+    admin_roles_in_db = admins_roles_list.value
+    if sorted(admin_roles_in_db) != sorted(admins_roles_in_wp):
+        set_setting_value(db, 'system.roles.administrator', admins_roles_in_wp, is_force=True)
 
-# НЕ ПОНИМАЮ ЗАЧЕМ ОБНОВЛЕНИЕ ТАБЛИЦЫ С КОНФИГОМ Т.К. РОЛИ УЖЕ ЕСТЬ
-# И НЕТ СПОСОБА ОПРЕДЕЛЯТЬ В КАКУЮ КАТЕГОРИЮ РОЛЕЙ ОПРЕДЕЛЯТЬ НАЗВАНИЕ
-# ТО ЕСТЬ Я НИКАК НЕ МОГУ ВЫЯСНИТЬ ЧТО НАПРИМЕР TRANSLATOR ЭТО USER
+    moder_roles_in_wp = wp_roles["moders"]
+    moders_roles_list = db.query(Configs).filter(Configs.name.ilike('%moderator%')).first()
+    moder_roles_in_db = moders_roles_list.value
+    if sorted(moder_roles_in_db) != sorted(moder_roles_in_wp):
+        set_setting_value(db, 'system.roles.moderator', moder_roles_in_wp, is_force=True)
+
+    user_roles_in_wp = wp_roles["users"]
+    users_roles_list = db.query(Configs).filter(Configs.name.ilike('%user%')).first()
+    user_roles_in_db = users_roles_list.value
+    if sorted(user_roles_in_db) != sorted(user_roles_in_wp):
+        set_setting_value(db, 'system.roles.user', user_roles_in_wp, is_force=True)
+
+
 
 
 def get_user_category(db: Session, user_roles: list) -> list:
@@ -84,7 +103,7 @@ async def external_login(
         raise HTTPException(status_code=500, detail='Не удалось получить данные пользователя.')
 
     roles = user_info["user"]["roles"]
-    # update_roles_in_config(db, roles)
+    update_roles_in_config(db, test_wp_roles_dict)
     category = get_user_category(db, roles)
 
     return {
