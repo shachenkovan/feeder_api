@@ -1,7 +1,7 @@
 from fastapi import Depends, APIRouter
 from sqlalchemy.orm import Session
 from api.schemas.device_models_schema import DeviceModelSchemaPost, DeviceModelSchemaGet
-from autorization.auth import get_current_user
+from authorization.auth import get_current_user
 from database.crud.device_models_crud import get_all_device_models, create_device_model, get_device_model_by_id, \
     delete_device_model, update_device_model
 from database.db import get_db

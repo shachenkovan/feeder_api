@@ -8,15 +8,13 @@ def set_setting_value(db: Session, name: str, value: dict, is_force: bool):
     try:
         config = db.query(Configs).filter(Configs.name == name).first()
         if config:
-            current_values = config.value or []
-            updated_values = list(set(current_values) | set(value))
+            updated_values = value
             config.value = updated_values
+        elif is_force:
+            config = Configs(name=name, value=value)
+            db.add(config)
         else:
-            if is_force:
-                config = Configs(name=name, value=value)
-                db.add(config)
-            else:
-                raise HTTPException(status_code=422, detail=f'Конфигурация с названием {name} не существует.')
+            raise HTTPException(status_code=422, detail=f'Конфигурация с названием {name} не существует.')
         db.commit()
         if config:
             db.refresh(config)

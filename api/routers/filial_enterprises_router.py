@@ -2,7 +2,7 @@ from fastapi import Depends, APIRouter
 from sqlalchemy.orm import Session
 from api.schemas.filial_enterprises_schema import FilialEnterprisesSchemaGet, FilialEnterprisesSchemaPost, \
     FilialEnterprisesSchemaUpdate
-from autorization.auth import get_current_user
+from authorization.auth import get_current_user
 from database.crud.filial_enterprises_crud import get_all_filial_enterprises, get_filial_enterprise_by_id, \
     create_filial_enterprise, update_filial_enterprise, delete_filial_enterprise
 from database.db import get_db

@@ -1,7 +1,7 @@
 from fastapi import Depends, APIRouter, HTTPException
 from sqlalchemy.orm import Session
 from api.schemas.config_schema import ConfigSchemaGet, ConfigSchemaPost
-from autorization.auth import get_current_user
+from authorization.auth import get_current_user
 from database.crud.configs_crud import get_all_settings, set_setting_value, get_setting_by_name
 from database.db import get_db
 
