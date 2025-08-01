@@ -2,7 +2,13 @@ from pydantic import BaseModel, Field
 
 
 class DeviceModelSchemaPost(BaseModel):
-    name: str = Field(max_length=500)
+    """
+    Pydantic-схема для создания или обновления модели устройства.
+
+    Поля:
+        name: Название модели устройства (макс. 500 символов)
+    """
+    name: str = Field(max_length=500, description="Название модели устройства")
 
     class Config:
         from_attributes = True
@@ -10,5 +16,8 @@ class DeviceModelSchemaPost(BaseModel):
 
 
 class DeviceModelSchemaGet(DeviceModelSchemaPost):
-    id: int = Field(gt=0)
-
+    """
+    Схема для возвращаемой модели устройства (включает ID).
+    Наследует все поля DeviceModelSchemaPost и добавляет идентификатор.
+    """
+    id: int = Field(gt=0, description="Уникальный идентификатор модели устройства в БД")
