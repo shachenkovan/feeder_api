@@ -1,7 +1,4 @@
 import secrets
-
-from jose import jwt
-from datetime import datetime, timedelta
 import requests
 from fastapi import HTTPException, APIRouter, Depends, status
 from fastapi.security import OAuth2PasswordRequestForm, OAuth2PasswordBearer
@@ -12,6 +9,7 @@ import config
 from database.crud.configs_crud import set_setting_value, get_setting_by_name
 from database.db import get_db
 from database.models import Configs
+from pydantic import BaseModel
 
 auth_router = APIRouter()
 
@@ -201,15 +199,9 @@ local_users_db = {
 }
 
 
-from pydantic import BaseModel
-
-
 class SimpleLoginRequest(BaseModel):
     username: str
     password: str
-
-
-from fastapi.security import OAuth2PasswordRequestForm
 
 
 @auth_router.post(
